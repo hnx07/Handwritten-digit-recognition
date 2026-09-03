@@ -1,10 +1,10 @@
 import numpy as np
-numsOfNeuron = 16
+numsOfNeuron = 64
 numsOfOutput = 10
 imgSize = 784
 
 def calRelu(Z):
-    return np.max(0, Z);
+    return np.maximum(0, Z);
 
 def calReluDerivative(Z):
     return Z > 0;
@@ -15,7 +15,7 @@ def calSoftmax(Z):
     return expZ / np.sum(expZ, axis=0);
 
 def encodeOneHot(Y):
-    temp = np.zeros((Y.size, Y.max() + 1));
+    temp = np.zeros((Y.size, numsOfOutput));
     temp[np.arange(Y.size), Y] = 1;
     return temp.T;
 
@@ -51,7 +51,7 @@ def propagateBackward(Z1, A1, Z2, A2, Z3, A3, W1, W2, W3, X, Y):
     dZ1 = W2.T.dot(dZ2) * calReluDerivative(Z1);
     dW1 = 1/m * dZ1.dot(X.T);
     db1 = 1/m * np.sum(dZ1, axis=1, keepdims=True);
-    return dW1, db1, dW2, db2;
+    return dW1, db1, dW2, db2, dW3, db3;
 
 def updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha):
     W1 = W1 - alpha * dW1;
@@ -75,5 +75,5 @@ def performGradientDescent(X, Y, alpha, iterations):
         dW1, db1, dW2, db2, dW3, db3 = propagateBackward(Z1, A1, Z2, A2,Z3, A3, W1, W2, W3, X, Y);
         W1, b1, W2, b2, W3, b3 = updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha);
         if (i % 10 == 0):
-            print("Iteration: ", i + 1, "| Acurracy: ", calculateAccuracy(getPredictions(A3), Y));
+            print("Iteration: ", i, "| Acurracy: ", round(calculateAccuracy(getPredictions(A3), Y),4));
     return W1, b1, W2, b2, W3, b3

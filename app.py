@@ -35,7 +35,7 @@ def handleMouseEvents(event, x, y, flags, param):
         if y > 280: 
             if x < 140:
                 setupUi() 
-                print("Đã xóa bảng vẽ.")
+                print("Board erased!")
             else:
                 predictDigit() 
         else: 

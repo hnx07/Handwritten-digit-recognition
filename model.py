@@ -62,16 +62,18 @@ def updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha
     b3 = b3 - alpha * db3;
     return W1, b1, W2, b2, W3, b3;
 
-def getPredictions(A2):
-    return np.argmax(A2, 0);
+def getPredictions(A3):
+    return np.argmax(A3, 0);
 
 def calculateAccuracy(predictions, Y):
     return np.sum(predictions == Y) / Y.size;
 
 def performGradientDescent(X, Y, alpha, iterations):
-    W1, b1, W2, b2 = initializeParameters();
+    W1, b1, W2, b2, W3, b3 = initializeParameters();
     for i in range(iterations):
-        Z1, A1, Z2, A2 = propagateForward(X, W1, b1, W2, b2);
-        dW1, db1, dW2, db2 = propagateBackward(Z1, A1, Z2, A2, W1, W2, X, Y);
-        W1, b1, W2, b2 = updateParameters(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha);
+        Z1, A1, Z2, A2, Z3, A3 = propagateForward(X, W1, b1, W2, b2, W3, b3);
+        dW1, db1, dW2, db2, dW3, db3 = propagateBackward(Z1, A1, Z2, A2,Z3, A3, W1, W2, W3, X, Y);
+        W1, b1, W2, b2 = updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha);
+        if (i % 10 == 0):
+            print("Iteration: ", i + 1, "| Acurracy: ", calculateAccuracy(getPredictions(A3), Y));
     return W1, b1, W2, b2

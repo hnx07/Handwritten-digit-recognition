@@ -15,7 +15,7 @@ def calSoftmax(Z):
     return expZ / np.sum(expZ, axis=0);
 
 def encodeOneHot(Y):
-    temp = np.zeros(Y.size, Y.max() + 1);
+    temp = np.zeros((Y.size, Y.max() + 1));
     temp[np.arange(Y.size), Y] = 1;
     return temp.T;
 
@@ -25,7 +25,7 @@ def initializeParameters():
     b1 = np.random.rand(numsOfNeuron, 1) - 0.5;
     W2 = np.random.rand(numsOfNeuron, numsOfNeuron) - 0.5;
     b2 = np.random.rand(numsOfNeuron, 1) - 0.5;
-    W3 = np.random.rand(numsOfNeuron, numsOfNeuron) - 0.5;
+    W3 = np.random.rand(numsOfOutput, numsOfNeuron) - 0.5;
     b3 = np.random.rand(numsOfOutput, 1) - 0.5;
     return W1, b1, W2, b2, W3, b3;
 
@@ -73,7 +73,7 @@ def performGradientDescent(X, Y, alpha, iterations):
     for i in range(iterations):
         Z1, A1, Z2, A2, Z3, A3 = propagateForward(X, W1, b1, W2, b2, W3, b3);
         dW1, db1, dW2, db2, dW3, db3 = propagateBackward(Z1, A1, Z2, A2,Z3, A3, W1, W2, W3, X, Y);
-        W1, b1, W2, b2 = updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha);
+        W1, b1, W2, b2, W3, b3 = updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha);
         if (i % 10 == 0):
             print("Iteration: ", i + 1, "| Acurracy: ", calculateAccuracy(getPredictions(A3), Y));
-    return W1, b1, W2, b2
+    return W1, b1, W2, b2, W3, b3

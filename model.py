@@ -1,10 +1,10 @@
 import numpy as np
-numsOfNeuron = 16
+numsOfNeuron = 64
 numsOfOutput = 10
 imgSize = 784
 
 def calRelu(Z):
-    return np.max(0, Z);
+    return np.maximum(0, Z);
 
 def calReluDerivative(Z):
     return Z > 0;
@@ -15,7 +15,7 @@ def calSoftmax(Z):
     return expZ / np.sum(expZ, axis=0);
 
 def encodeOneHot(Y):
-    temp = np.zeros(Y.size, Y.max() + 1);
+    temp = np.zeros((Y.size, numsOfOutput));
     temp[np.arange(Y.size), Y] = 1;
     return temp.T;
 
@@ -25,7 +25,7 @@ def initializeParameters():
     b1 = np.random.rand(numsOfNeuron, 1) - 0.5;
     W2 = np.random.rand(numsOfNeuron, numsOfNeuron) - 0.5;
     b2 = np.random.rand(numsOfNeuron, 1) - 0.5;
-    W3 = np.random.rand(numsOfNeuron, numsOfNeuron) - 0.5;
+    W3 = np.random.rand(numsOfOutput, numsOfNeuron) - 0.5;
     b3 = np.random.rand(numsOfOutput, 1) - 0.5;
     return W1, b1, W2, b2, W3, b3;
 
@@ -51,7 +51,7 @@ def propagateBackward(Z1, A1, Z2, A2, Z3, A3, W1, W2, W3, X, Y):
     dZ1 = W2.T.dot(dZ2) * calReluDerivative(Z1);
     dW1 = 1/m * dZ1.dot(X.T);
     db1 = 1/m * np.sum(dZ1, axis=1, keepdims=True);
-    return dW1, db1, dW2, db2;
+    return dW1, db1, dW2, db2, dW3, db3;
 
 def updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha):
     W1 = W1 - alpha * dW1;
@@ -62,16 +62,18 @@ def updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha
     b3 = b3 - alpha * db3;
     return W1, b1, W2, b2, W3, b3;
 
-def getPredictions(A2):
-    return np.argmax(A2, 0);
+def getPredictions(A3):
+    return np.argmax(A3, 0);
 
 def calculateAccuracy(predictions, Y):
     return np.sum(predictions == Y) / Y.size;
 
 def performGradientDescent(X, Y, alpha, iterations):
-    W1, b1, W2, b2 = initializeParameters();
+    W1, b1, W2, b2, W3, b3 = initializeParameters();
     for i in range(iterations):
-        Z1, A1, Z2, A2 = propagateForward(X, W1, b1, W2, b2);
-        dW1, db1, dW2, db2 = propagateBackward(Z1, A1, Z2, A2, W1, W2, X, Y);
-        W1, b1, W2, b2 = updateParameters(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha);
-    return W1, b1, W2, b2
+        Z1, A1, Z2, A2, Z3, A3 = propagateForward(X, W1, b1, W2, b2, W3, b3);
+        dW1, db1, dW2, db2, dW3, db3 = propagateBackward(Z1, A1, Z2, A2,Z3, A3, W1, W2, W3, X, Y);
+        W1, b1, W2, b2, W3, b3 = updateParameters(W1, b1, W2, b2, W3, b3, dW1, db1, dW2, db2, dW3, db3, alpha);
+        if (i % 10 == 0):
+            print("Iteration: ", i, "| Acurracy: ", round(calculateAccuracy(getPredictions(A3), Y),4));
+    return W1, b1, W2, b2, W3, b3
